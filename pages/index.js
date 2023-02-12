@@ -3,7 +3,8 @@ import Banner from "../components/banner";
 import styles from "../styles/Home.module.css";
 import Image from "next/image";
 import Card from "../components/card";
-import coffeeStoresData from "../data/coffee-stores.json";
+// import coffeeStoresData from "../data/coffee-stores.json";
+import {fetchCoffeeStores} from '../lib/coffee-store.js';
 
 export default function Home(props) {
   console.log("props", props);
@@ -34,13 +35,14 @@ export default function Home(props) {
         </div>
         {props.coffeeStores.length > 0 && (
           <>
-            <h2 className={styles.heading2}>Toronto Stores</h2>
+            <h2 className={styles.heading2}>Amman Stores</h2>
             <div className={styles.cardLayout}>
               {props.coffeeStores.map((coffeeStore) => {
                 return (
                   <Card
                     key={coffeeStore.fsq_id}
                     name={coffeeStore.name}
+                    data={coffeeStore}
                     href={"coffee-store/" + coffeeStore.fsq_id}
                     imgUrl={coffeeStore.imgUrl||"https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
                     className={styles.card}
@@ -56,20 +58,13 @@ export default function Home(props) {
 }
 
 export async function getStaticProps(context) {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'fsq3IXig36asVtVt6scCUDnBmdQ+XLCN2IzjlOauXIHLS+0='
-    }
-  };
-  
-  const response=await fetch('https://api.foursquare.com/v3/places/search?query=coffee%20stores&ll=31.993343937295887%2C35.85323872270549&limit=6', options)
-   const data=await response.json();
-    // .catch(err => console.error(err));
-  return {
-    props: {
-      coffeeStores:data.results,
-    },
-  };
+  try {
+    const coffeeStores= await fetchCoffeeStores();
+    return {
+      props: {
+        coffeeStores
+      },
+    };
+  }catch (err) { };
+ 
 }
