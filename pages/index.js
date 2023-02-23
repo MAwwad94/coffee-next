@@ -3,13 +3,17 @@ import Banner from "../components/banner";
 import styles from "../styles/Home.module.css";
 import Image from "next/image";
 import Card from "../components/card";
+import useTrackLocation from "../hooks/use-track-location";
 // import coffeeStoresData from "../data/coffee-stores.json";
-import {fetchCoffeeStores} from '../lib/coffee-store.js';
+import { fetchCoffeeStores } from "../lib/coffee-store.js";
 
+const { handleTrackLocation, latLong, locationErrorMsg } = useTrackLocation();
 export default function Home(props) {
-  console.log("props", props);
+  // console.log("props", props);
+  console.log({latLong,locationErrorMsg})
+
   const handleOnBannerBtnClick = () => {
-    console.log("hi banner button");
+    handleTrackLocation();
   };
 
   return (
@@ -40,11 +44,14 @@ export default function Home(props) {
               {props.coffeeStores.map((coffeeStore) => {
                 return (
                   <Card
-                    key={coffeeStore.fsq_id}
+                    key={coffeeStore.id}
                     name={coffeeStore.name}
                     data={coffeeStore}
-                    href={"coffee-store/" + coffeeStore.fsq_id}
-                    imgUrl={coffeeStore.imgUrl||"https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
+                    href={"coffee-store/" + coffeeStore.id}
+                    imgUrl={
+                      coffeeStore.imgUrl ||
+                      "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                    }
                     className={styles.card}
                   />
                 );
@@ -59,12 +66,11 @@ export default function Home(props) {
 
 export async function getStaticProps(context) {
   try {
-    const coffeeStores= await fetchCoffeeStores();
+    const coffeeStores = await fetchCoffeeStores();
     return {
       props: {
-        coffeeStores
+        coffeeStores,
       },
     };
-  }catch (err) { };
- 
+  } catch (err) {}
 }
