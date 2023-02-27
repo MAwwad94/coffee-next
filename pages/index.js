@@ -1,18 +1,22 @@
+'use client';
 import Head from 'next/head';
 import Banner from '../components/banner';
 import styles from '../styles/Home.module.css';
 import Image from 'next/image';
 import Card from '../components/card';
-// import useTrackLocation from './hooks/use-track-location';
+import useTrackLocation from './hooks/use-track-location.js';
 // import coffeeStoresData from "../data/coffee-stores.json";
 import { fetchCoffeeStores } from '../lib/coffee-store.js';
+const hasWindow = typeof window !== 'undefined';
 
-// const { handleTrackLocation, latLong, locationErrorMsg } = useTrackLocation();
 export default function Home(props) {
-  // console.log("props", props);
-  // console.log({ latLong, locationErrorMsg });
-
+  if (hasWindow) {
+    const { handleTrackLocation, latLong, locationErrorMsg } =
+      useTrackLocation();
+    console.log({ latLong, locationErrorMsg });
+  }
   const handleOnBannerBtnClick = () => {
+    console.log('test');
     // handleTrackLocation();
   };
 
@@ -33,6 +37,7 @@ export default function Home(props) {
           <Image
             src='/static/hero-image.png'
             alt='hero image'
+            priority
             width={700}
             height={400}
           />
