@@ -10,14 +10,12 @@ import { fetchCoffeeStores } from '../lib/coffee-store.js';
 const hasWindow = typeof window !== 'undefined';
 
 export default function Home(props) {
-  if (hasWindow) {
-    const { handleTrackLocation, latLong, locationErrorMsg } =
-      useTrackLocation();
-    console.log({ latLong, locationErrorMsg });
-  }
+  // if (hasWindow) {
+  const { handleTrackLocation, latLong, locationErrorMsg } = useTrackLocation();
+
   const handleOnBannerBtnClick = () => {
-    console.log('test');
-    // handleTrackLocation();
+    handleTrackLocation();
+    console.log('latLong', latLong);
   };
 
   return (
@@ -31,7 +29,7 @@ export default function Home(props) {
       <main className={styles.main}>
         <Banner
           buttonText='View Store Nearby'
-          handleOnCLick={handleOnBannerBtnClick}
+          handleOnClick={handleOnBannerBtnClick}
         />
         <div className={styles.heroImage}>
           <Image
