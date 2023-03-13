@@ -7,18 +7,38 @@ import Card from '../components/card';
 import useTrackLocation from './hooks/use-track-location.js';
 // import coffeeStoresData from "../data/coffee-stores.json";
 import { fetchCoffeeStores } from '../lib/coffee-store.js';
-const hasWindow = typeof window !== 'undefined';
+import { useEffect, useState } from 'react';
+// const hasWindow = typeof window !== 'undefined';
 
 export default function Home(props) {
-  if (hasWindow) {
-    const { handleTrackLocation, latLong, locationErrorMsg } =
-      useTrackLocation();
-    console.log({ latLong, locationErrorMsg });
-  }
+  // if (hasWindow) {
+  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } =
+    useTrackLocation();
+  console.log({ latLong, locationErrorMsg });
+  // }
   const handleOnBannerBtnClick = () => {
-    console.log('test');
-    // handleTrackLocation();
+    handleTrackLocation();
   };
+  const [coffeeStores, setCoffeeStores] = useState('');
+  const [coffeeStoresErrors, setCoffeeStoresErrors] = useState(null);
+
+  useEffect(() => {
+    if (latLong) {
+      async function setCoffeeStoresByLocation() {
+        try {
+          const fetchCoffeeStore = await fetchCoffeeStores(latLong, 30);
+          console.log('fetchCoffeeStore', fetchCoffeeStore);
+          setCoffeeStores(fetchCoffeeStore);
+          //set coffee store
+        } catch (error) {
+          setCoffeeStoresErrors(error.message);
+          //set error
+          console.log({ error });
+        }
+      }
+      setCoffeeStoresByLocation();
+    }
+  }, [latLong]);
 
   return (
     <div className={styles.container}>
@@ -30,9 +50,11 @@ export default function Home(props) {
 
       <main className={styles.main}>
         <Banner
-          buttonText='View Store Nearby'
+          buttonText={isFindingLocation ? 'Locating...' : 'View Store Nearby'}
           handleOnCLick={handleOnBannerBtnClick}
         />
+        {locationErrorMsg && <p>Something went wrong {locationErrorMsg}</p>}
+        {coffeeStoresErrors && <p>Something went wrong {coffeeStoresErrors}</p>}
         <div className={styles.heroImage}>
           <Image
             src='/static/hero-image.png'
@@ -42,6 +64,28 @@ export default function Home(props) {
             height={400}
           />
         </div>
+        {coffeeStores.length > 0 && (
+          <>
+            <h2 className={styles.heading2}>Stores near me</h2>
+            <div className={styles.cardLayout}>
+              {coffeeStores.map((coffeeStore) => {
+                return (
+                  <Card
+                    key={coffeeStore.id}
+                    name={coffeeStore.name}
+                    data={coffeeStore}
+                    href={'coffee-store/' + coffeeStore.id}
+                    imgUrl={
+                      coffeeStore.imgUrl ||
+                      'https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80'
+                    }
+                    className={styles.card}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
         {props.coffeeStores.length > 0 && (
           <>
             <h2 className={styles.heading2}>Amman Stores</h2>
